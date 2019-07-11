@@ -2,13 +2,17 @@ import numpy as np
 
 
 class KNearestNeighbor(object):
-    """ a kNN classifier with L2 distance """
+    """ 
+    a kNN classifier with L2 distance 
+    基于欧式距离的KNN分类器
+    """
 
     def __init__(self):
         pass
 
     def train(self, X, y):
         """
+        训练分类器
         Train the classifier. For k-nearest neighbors this is just 
         memorizing the training data.
 
@@ -23,6 +27,7 @@ class KNearestNeighbor(object):
 
     def predict(self, X, k=1, num_loops=0):
         """
+        使用分类器为测试集预测标签
         Predict labels for test data using this classifier.
 
         Inputs:
@@ -72,8 +77,8 @@ class KNearestNeighbor(object):
                 # training point, and store the result in dists[i, j]. You should   #
                 # not use a loop over dimension.                                    #
                 #####################################################################
-                # pass
-                dists[i][j] = np.sqrt(np.sum((X[i] - self.X_train[j])**2))
+                # 直接计算欧氏距离
+                dists[i][j] = np.sqrt(np.sum(np.square(self.X_train[j] - X[i])))
                 #####################################################################
                 #                       END OF YOUR CODE                            #
                 #####################################################################
@@ -94,9 +99,10 @@ class KNearestNeighbor(object):
             # TODO:                                                               #
             # Compute the l2 distance between the ith test point and all training #
             # points, and store the result in dists[i, :].                        #
-            #######################################################################
-            # pass                                                  axis=1 行相加
-            dists[i,:] = np.sqrt(np.sum(np.square(X[i] - self.X_train[:]),axis = 1))
+            #######################################################################                                                 
+            # dists[i,:] = np.sqrt(np.sum((self.X_train - X[i,:])**2, axis = 1))
+            dists[i, :] = np.sqrt(np.sum(np.square(self.X_train - X[i]), axis=1))
+
             #######################################################################
             #                         END OF YOUR CODE                            #
             #######################################################################
@@ -124,7 +130,9 @@ class KNearestNeighbor(object):
         # HINT: Try to formulate the l2 distance using matrix multiplication    #
         #       and two broadcast sums.                                         #
         #########################################################################
-        # pass
+        # (a - b) ^ 2 = a ^ 2 + b ^ 2 - 2ab 
+        # np.transpose() 矩阵转置
+        # 
         dists = np.sqrt(np.dot((X**2), np.ones((np.transpose(self.X_train)).shape))+ np.dot(np.ones(X.shape), np.transpose(self.X_train ** 2))- 2 * np.dot(X, np.transpose(self.X_train)))
         #########################################################################
         #                         END OF YOUR CODE                              #
@@ -133,6 +141,7 @@ class KNearestNeighbor(object):
 
     def predict_labels(self, dists, k=1):
         """
+        预测标签
         Given a matrix of distances between test points and training points,
         predict a label for each test point.
 
@@ -157,10 +166,10 @@ class KNearestNeighbor(object):
             # neighbors. Store these labels in closest_y.                           #
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
-            # pass
+            # idx 对于已经求出的距离进行排序
             idx = np.argsort(dists[i, :])
+            # 存储距离最近的k个
             closest_y = list(self.y_train[idx[0:k]])
-
 
             #########################################################################
             # TODO:                                                                 #
@@ -169,9 +178,9 @@ class KNearestNeighbor(object):
             # Store this label in y_pred[i]. Break ties by choosing the smaller     #
             # label.                                                                #
             #########################################################################
-            # pass
-
+            # 找出种类最多的（np.argmax为取出最大值对应索引）
             y_pred[i] = np.argmax(np.bincount(closest_y))
+
             #########################################################################
             #                           END OF YOUR CODE                            #
             #########################################################################
